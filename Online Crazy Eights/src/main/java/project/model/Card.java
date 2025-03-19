@@ -68,14 +68,6 @@ public class Card {
         public String getValue() {
             return value;
         }
-
-        /**
-         * Gets the point value of the rank
-         * @return the rank's point value
-         */
-        public int getPointValue(){
-            return pointValue;
-        }
     }
 
     /** The suit of the card */
@@ -111,8 +103,8 @@ public class Card {
     }
 
     /**
-     *
-     * @return
+     * Gets the point value of the rank
+     * @return the rank's point value
      */
     public int getPointValue() {
         return Rank.pointValue;

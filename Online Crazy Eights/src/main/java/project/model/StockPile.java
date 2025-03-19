@@ -34,7 +34,9 @@ public class StockPile {
     public void addCard(Card card){
         stockPileCards.add(card);
         topCard = card;
-        topCardSuit = card.getSuit();
+        if (card.getRank() != Card.Ranks.EIGHT){
+            topCardSuit = card.getSuit();
+        }
     }
 
     /**
@@ -44,6 +46,12 @@ public class StockPile {
     public Card getTopCard(){
         return topCard;
     }
+
+    /**
+     * Returns the top card suit from the stockpile
+     * @return the top card suit
+     */
+    public Card.Suits getTopCardSuit() { return topCardSuit; }
 
     /**
      * Sets the suit of the top card. This is here in case an EIGHT is placed down

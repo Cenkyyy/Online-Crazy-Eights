@@ -36,7 +36,7 @@ public class Deck {
      * @param cards cards to be shuffled
      */
     public void shuffleCards(ArrayList<Card> cards){
-        Collections.shuffle(deckCards);
+        Collections.shuffle(cards);
     }
 
     /**
