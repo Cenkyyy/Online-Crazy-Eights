@@ -25,6 +25,9 @@ public class GameLogic {
     // player limit
     private final int playerLimit = 7;
 
+    // when this amount of points is reached, player wins
+    private int winningAmount = 50;
+
     private int currPlayerIndex;
     private ArrayList<Player> players;
     private Deck deck;
@@ -37,6 +40,7 @@ public class GameLogic {
         players = new ArrayList<>();
         deck = new Deck();
         stockPile = new StockPile();
+        winningAmount = 50 * players.size();
     }
 
     /**
@@ -106,8 +110,8 @@ public class GameLogic {
      * Deals initial cards to each player based on amount of players in the game
      */
     public void dealInitialCards(){
-        //int cardsCount = players.size() == 2 ? twoPlayerCardsCount : nonTwoPlayerCardCount;
-        int cardsCount = 1;
+        int cardsCount = players.size() == 2 ? twoPlayerCardsCount : nonTwoPlayerCardCount;
+
         for (int i = 0; i < cardsCount; i++) {
             for (var player : players){
                 player.addCard(deck.drawCard()); // add drawn card from the deck
@@ -159,10 +163,10 @@ public class GameLogic {
     }
 
     /**
-     * Checks if any player has won the round (i.e., their hand is empty)
+     * Checks if any player has their hand is empty - meaning they've won
      * @return true if at least one player has no cards left, false otherwise
      */
-    public boolean hasWinner() {
+    public boolean hasRoundWinner() {
         for (Player player : players) {
             if (player.getHandCards().isEmpty()) {
                 return true;
@@ -176,7 +180,7 @@ public class GameLogic {
      * Assumes that only one player can have an empty hand at the time of winning
      * @return the winning player, or null if no winner is found
      */
-    public Player getWinner() {
+    public Player getRoundWinner() {
         for (Player player : players) {
             if (player.getHandCards().isEmpty()) {
                 return player;
@@ -186,10 +190,37 @@ public class GameLogic {
     }
 
     /**
+     * Checks if any player has enough points to win the game
+     * @return true if at least one player has enough points to win, false otherwise
+     */
+    public boolean hasUltimateWinner(){
+        for (Player player : players){
+            if (player.getPoints() >= winningAmount){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns the player who has won the game
+     * @return the winning player, or null if no winner is found
+     */
+    public Player getUltimateWinner(){
+        for (Player player : players){
+            if (player.getPoints() >= winningAmount){
+                return player;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Calculates the score for the winning player based on the opponents' remaining cards.
      * @param winner the player who won the game
+     * @return how many points the player has won
      */
-    public void calculateScores(Player winner) {
+    public int calculateScores(Player winner) {
         int totalPoints = 0;
         for (Player player : players) {
             if (!player.equals(winner)) {
@@ -199,6 +230,6 @@ public class GameLogic {
             }
         }
         winner.addPoints(totalPoints);
-        System.out.println("[GAME] " + winner.getName() + " wins with " + totalPoints + " points!");
+        return totalPoints;
     }
 }
