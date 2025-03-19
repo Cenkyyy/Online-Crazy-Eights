@@ -105,6 +105,7 @@ public class Server {
      * - PLAY <cardIndex> [<suit>] (Play a card; if playing an 8, a suit must be provided)
      * - DRAW (Draw a card)
      * - CHAT <message> (Send a chat message)
+     * - START (Any player can start the game)
      * @param handler the client handler processing the command
      * @param command the command received from the client as string
      */
@@ -116,9 +117,11 @@ public class Server {
         }
 
         String[] splitted = command.split(" ");
+        System.out.println(Arrays.toString(splitted));
         Commands.Command cmd = Commands.Command.fromString(splitted[0]);
+        System.out.println(cmd);
 
-        if (!player.equals(gameLogic.getCurrentPlayer()) && !cmd.equals(Commands.Command.CHAT)) {
+        if (!player.equals(gameLogic.getCurrentPlayer()) && !cmd.equals(Commands.Command.CHAT) && !cmd.equals(Commands.Command.START)) {
             handler.sendMessage(displayer.displayNotYourTurnMessage());
             return;
         }
@@ -127,6 +130,7 @@ public class Server {
             case PLAY -> handlePlayCommand(handler, player, splitted);
             case DRAW -> handleDrawCommand(player);
             case CHAT -> handleChatCommand(handler, splitted);
+            case START -> handleStartCommand(handler);
             case UNKNOWN -> handler.sendMessage(displayer.displayUnknownCommandMessage());
         }
     }
@@ -216,8 +220,24 @@ public class Server {
     }
 
     /**
+     * Handles the START command to begin the game
+     * Any player can start the game
+     * @param handler the client handler issuing the start command
+     */
+    private void handleStartCommand(ClientHandler handler) {
+        if (!gameStarted && gameLogic.getPlayers().size() >= 2) {
+            gameStarted = true;
+            gameLogic.startGame();
+            publicBroadcast("[GAME] Game is starting!");
+            displayOneGameRound(displayer.displayRules());
+        } else {
+            handler.sendMessage("[GAME] Game cannot be started now");
+        }
+    }
+
+    /**
      * Displays the winner and their score if there is one, otherwise,
-     * displays
+     * displays next board state and everyones cards
      * @param message the message to display
      */
     private void displayOneGameRound(String message){
@@ -315,14 +335,6 @@ public class Server {
                 // add the new player to the game
                 gameLogic.addPlayer(player);
                 publicBroadcast("[GAME] " + name + " has joined the game.");
-
-                // If at least 2 players have joined and the game hasn’t started, then start the game.
-                if (gameLogic.getPlayers().size() >= 2 && !gameStarted) {
-                    gameStarted = true;
-                    gameLogic.startGame();
-                    publicBroadcast("[GAME] Game is starting!");
-                    displayOneGameRound(displayer.displayRules());
-                }
 
                 // main loop - process each line received from the client.
                 String input;
