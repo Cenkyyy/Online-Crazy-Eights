@@ -72,33 +72,37 @@ Ensure you have the following installed before running the game:
 
 - Command prompt or terminal (also an java IDE is possible)
 
-### Server setup
+### Game setup
 
 1. Open up your command prompt or terminal
 
-2. Compile and run the `Server.java` like this:
+2. Go to the file where /src is located in
+
+3. Compile the program using:
 
 ```
-javac Server.java
-java Server.java
+javac .\src\main\java\project\model\Card.java .\src\main\java\project\model\Deck.java .\src\main\java\project\model\Player.java .\src\main\java\project\model\StockPile.java .\src\main\java\project\view\GameDisplayer.java .\src\main\java\project\view\Chat.java .\src\main\java\project\controller\GameLogic.java .\src\main\java\project\network\Commands.java .\src\main\java\project\network\Server.java
 ```
 
-3. Once the game ends, the server will shutdown, however, if you wish to shut it down earlier, run:
+4. To run the server, run:
+
+```
+java .\src\main\java\project\network\Server.java
+```
+
+- Once the game ends, the server will shutdown, however, if you wish to shut it down earlier, run:
 
 ```
 CTRL + C
 ```
 
-### Client setup
-
-1. Open up your command prompt or terminal
-
-2. Compile and run the `Client.java` like this:
-
+5. To run the client, run:
+   
 ```
-javac Client.java
-java Client.java
+java .\src\main\java\project\network\Client.java
 ```
+
+6. If you wish to participate with more players, open up more terminals and do the same
 
 ---
 ### Features
