@@ -23,7 +23,8 @@ public class GameLogic {
     private final int nonTwoPlayerCardCount = 5;
 
     // player limit
-    private final int playerLimit = 7;
+    public final int playerUpperBound = 7;
+    public final int playerLowerBound = 2;
 
     // when this amount of points is reached, player wins
     private int winningAmount = 50;
@@ -61,7 +62,6 @@ public class GameLogic {
         }
         deck = new Deck();
         stockPile = new StockPile();
-        startGame();
     }
 
     /**
@@ -84,10 +84,18 @@ public class GameLogic {
      * @param player player to add
      */
     public void addPlayer(Player player){
-        if (players.size() < playerLimit){
+        if (players.size() < playerUpperBound){
             players.add(player);
         }
         else System.out.println("[GAME] This lobby is already full.");
+    }
+
+    /**
+     * Removes player from the game
+     * @param player player to remove
+     */
+    public void removePlayer(Player player){
+        players.remove(player);
     }
 
     /**
@@ -110,7 +118,7 @@ public class GameLogic {
      * Deals initial cards to each player based on amount of players in the game
      */
     public void dealInitialCards(){
-        int cardsCount = players.size() == 2 ? twoPlayerCardsCount : nonTwoPlayerCardCount;
+        int cardsCount = players.size() == playerLowerBound ? twoPlayerCardsCount : nonTwoPlayerCardCount;
 
         for (int i = 0; i < cardsCount; i++) {
             for (var player : players){
