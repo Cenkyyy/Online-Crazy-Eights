@@ -38,13 +38,14 @@ public class GameDisplayer {
                   - Each 8 is worth 50 points.
                   - Each ACE is worth 1 point.
                   - Each 10, J, Q, K is worth 10 points.
-                  
+               7. The first player to reach the winning score is declared the ultimate winner.   
+                 
                How to play:
                You may choose one of the 3 possible commands:
-               1. PLAY <one-based index of card> <suit> - In case you play 8, add extra suit which you would like
-                  to change the suit to, possible options: HEARTS, DIAMONDS, CLUBS, SPADES (lowercase also accepted)
-               2. DRAW - Draws a card for you   
-               3. CHAT <message> - Lets you chat to your opponents at any time, any message
+                1. PLAY <one-based index of card> <suit> - Plays a card. If playing an Eight, specify the new suit. Possible options: HEARTS, DIAMONDS, CLUBS, SPADES (lowercase also accepted)
+                2. DRAW - Draws a card from the deck
+                3. CHAT <message> - Sends a chat message to all players.
+                4. START - Lets any player start the game
                """;
     }
 
