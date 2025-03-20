@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>cz.cuni.mff.java</groupId>
-    <artifactId>Online Crazy Eights</artifactId>
+    <groupId>cz.cuni.mff.java.project</groupId>
+    <artifactId>Online-Crazy-Eights</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -35,9 +35,20 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
-                <configuration>
-                    <mainClass>cz.cuni.mff.java.project.GameLogic</mainClass>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>run-server</id>
+                        <configuration>
+                            <mainClass>project.network.Server</mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>run-client</id>
+                        <configuration>
+                            <mainClass>project.network.Client</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
