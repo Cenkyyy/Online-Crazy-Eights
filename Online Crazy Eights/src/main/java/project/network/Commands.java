@@ -18,6 +18,7 @@ public class Commands {
         PLAY,
         DRAW,
         CHAT,
+        START,
         UNKNOWN; // For invalid commands
 
         /**
@@ -31,6 +32,7 @@ public class Commands {
                 case "PLAY" -> cmd = Command.PLAY;
                 case "DRAW" -> cmd = Command.DRAW;
                 case "CHAT" -> cmd = Command.CHAT;
+                case "START" -> cmd = Command.START;
                 default -> cmd = Command.UNKNOWN;
             }
             return cmd;

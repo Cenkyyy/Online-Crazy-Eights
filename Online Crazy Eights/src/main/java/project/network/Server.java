@@ -14,7 +14,7 @@ import java.net.*;
 import java.util.*;
 
 /**
- *
+ * A class that opens up the server and lets users join, handles every command and the game itself
  */
 public class Server {
     //
@@ -37,6 +37,9 @@ public class Server {
     // bool to ensure the game starts only once
     private boolean gameStarted = false;
 
+    // bool to ensure the game is currently running
+    private volatile boolean running = true;
+
     /**
      * The main that starts server and waits for clients to join
      * @param args command-line arguments (not needed)
@@ -54,7 +57,7 @@ public class Server {
             System.out.println("Server successfully started on port " + PORT);
 
             // main loop - accept new clients and create a thread for them
-            while (true) {
+            while (running) {
                 Socket socket = serverSocket.accept();
                 ClientHandler handler = new ClientHandler(socket);
                 clientHandlers.add(handler);
@@ -64,6 +67,9 @@ public class Server {
         }
         catch (IOException e) {
             System.out.println("An error occurred when creating server");
+        }
+        finally {
+            shutdown();
         }
     }
 
@@ -96,9 +102,10 @@ public class Server {
     /**
      * Processes a command sent from a client
      * Valid commands:
-     * - PLAY <cardIndex> [<suit>]  (Play a card; if playing an 8, a suit must be provided)
-     * - DRAW                      (Draw a card)
-     * - CHAT <message>            (Send a chat message)
+     * - PLAY <cardIndex> [<suit>] (Play a card; if playing an 8, a suit must be provided)
+     * - DRAW (Draw a card)
+     * - CHAT <message> (Send a chat message)
+     * - START (Any player can start the game)
      * @param handler the client handler processing the command
      * @param command the command received from the client as string
      */
@@ -110,9 +117,11 @@ public class Server {
         }
 
         String[] splitted = command.split(" ");
+        System.out.println(Arrays.toString(splitted));
         Commands.Command cmd = Commands.Command.fromString(splitted[0]);
+        System.out.println(cmd);
 
-        if (!player.equals(gameLogic.getCurrentPlayer()) && !cmd.equals(Commands.Command.CHAT)) {
+        if (!player.equals(gameLogic.getCurrentPlayer()) && !cmd.equals(Commands.Command.CHAT) && !cmd.equals(Commands.Command.START)) {
             handler.sendMessage(displayer.displayNotYourTurnMessage());
             return;
         }
@@ -121,6 +130,7 @@ public class Server {
             case PLAY -> handlePlayCommand(handler, player, splitted);
             case DRAW -> handleDrawCommand(player);
             case CHAT -> handleChatCommand(handler, splitted);
+            case START -> handleStartCommand(handler);
             case UNKNOWN -> handler.sendMessage(displayer.displayUnknownCommandMessage());
         }
     }
@@ -139,7 +149,7 @@ public class Server {
 
         int cardIndex;
         try {
-            cardIndex = Integer.parseInt(splitted[1]);
+            cardIndex = Integer.parseInt(splitted[1]) - 1;
         }
         catch (NumberFormatException e) {
             handler.sendMessage(displayer.displayInvalidCardIndexMessage());
@@ -173,7 +183,12 @@ public class Server {
 
         boolean success = gameLogic.playCard(player, cardToPlay, chosenSuit);
         if (success) {
-            displayOneGameRound("[GAME] " + player.getName() + " played " + cardToPlay);
+            if (cardToPlay.getRank() == Card.Ranks.EIGHT && chosenSuit != null){
+                displayOneGameRound("[GAME] " + player.getName() + " played " + cardToPlay + " and switched the suit to: " + chosenSuit.getSymbol());
+            }
+            else{
+                displayOneGameRound("[GAME] " + player.getName() + " played " + cardToPlay);
+            }
         }
         else {
             handler.sendMessage(displayer.displayInvalidMoveMessage());
@@ -205,31 +220,69 @@ public class Server {
     }
 
     /**
-     *
-     * @param message
+     * Handles the START command to begin the game
+     * Any player can start the game
+     * @param handler the client handler issuing the start command
+     */
+    private void handleStartCommand(ClientHandler handler) {
+        if (!gameStarted && gameLogic.getPlayers().size() >= 2) {
+            gameStarted = true;
+            gameLogic.startGame();
+            publicBroadcast("[GAME] Game is starting!");
+            displayOneGameRound(displayer.displayRules());
+        } else {
+            handler.sendMessage("[GAME] Game cannot be started now");
+        }
+    }
+
+    /**
+     * Displays the winner and their score if there is one, otherwise,
+     * displays next board state and everyone's cards
+     * @param message the message to display
      */
     private void displayOneGameRound(String message){
-        if (gameLogic.hasWinner()) {
-            Player winner = gameLogic.getWinner();
-            gameLogic.calculateScores(winner);
-            publicBroadcast(winner.getName() + " has won the game with " + winner.getPoints() + " points!");
+        if (gameLogic.hasRoundWinner()) {
+            if (gameLogic.hasUltimateWinner()){
+                Player ultimateWinner = gameLogic.getUltimateWinner();
+                publicBroadcast("[GAME] " + ultimateWinner.getName() + " wins the game, thank you everyone for playing! bye");
+                shutdown();
+                return;
+            }
+
+            Player winner = gameLogic.getRoundWinner();
+            int totalPoints = gameLogic.calculateScores(winner);
+            publicBroadcast("[GAME] Accumulated score from other players cards: " + totalPoints + " points!");
+            publicBroadcast("[GAME] " + winner.getName() + " wins and currently has: " + winner.getPoints());
             resetGame();
             return;
         }
 
         // display the game state publicly for everyone
         publicBroadcast(message);
-        publicBroadcast(displayer.displayGameState(gameLogic.getPlayers(), gameLogic.getCurrentPlayer(), gameLogic.getStockPile().getTopCard()));
+        publicBroadcast(displayer.displayGameState(gameLogic.getPlayers(), gameLogic.getCurrentPlayer(), gameLogic.getStockPile().getTopCard(), gameLogic.getStockPile().getTopCardSuit()));
 
         // display each player's card to him privately
         for (var p : gameLogic.getPlayers()){
             privateBroadcast(p, displayer.displayPlayersCards(p));
+            privateBroadcast(p, displayer.displayPlayersScore(p));
         }
     }
 
+    /**
+     * Resets the game
+     */
     private void resetGame(){
         gameLogic.resetGame();
-        gameStarted = false;
+        gameLogic.startGame();
+        publicBroadcast("[GAME] New game is starting!");
+    }
+
+    /**
+     * Closes the server socket and notifies all connected clients.
+     */
+    private void shutdown() {
+        running = false;
+        publicBroadcast("Server is shutting down.");
     }
 
     /**
@@ -283,14 +336,6 @@ public class Server {
                 gameLogic.addPlayer(player);
                 publicBroadcast("[GAME] " + name + " has joined the game.");
 
-                // If at least 2 players have joined and the game hasn’t started, then start the game.
-                if (gameLogic.getPlayers().size() >= 2 && !gameStarted) {
-                    gameStarted = true;
-                    gameLogic.startGame();
-                    publicBroadcast("[GAME] Game is starting!");
-                    displayOneGameRound(displayer.displayRules());
-                }
-
                 // main loop - process each line received from the client.
                 String input;
                 while ((input = in.readLine()) != null) {
@@ -304,7 +349,7 @@ public class Server {
                 try {
                     socket.close();
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    // won't happen
                 }
                 clientHandlers.remove(this);
                 publicBroadcast("[GAME] " + (player != null ? player.getName() : "A player") + " has left.");
