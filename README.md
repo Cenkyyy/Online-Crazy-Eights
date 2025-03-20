@@ -68,7 +68,9 @@ CHAT Hello everyone! // sends "Hello everyone!"
 
 Ensure you have the following installed before running the game:
 
-- Java Development Kit (JDK 23 or later)
+- Java Development Kit (JDK 23 or later) - required to run the Java program
+
+- Apache Maven - Required to compile and run the game using Maven commands
 
 - Command prompt or terminal (also an java IDE is possible)
 
@@ -76,18 +78,18 @@ Ensure you have the following installed before running the game:
 
 1. Open up your command prompt or terminal
 
-2. Go to the file where /src is located in
+2. Go to the file Online Crazy Eights
 
 3. Compile the program using:
 
 ```
-javac .\src\main\java\project\model\Card.java .\src\main\java\project\model\Deck.java .\src\main\java\project\model\Player.java .\src\main\java\project\model\StockPile.java .\src\main\java\project\view\GameDisplayer.java .\src\main\java\project\view\Chat.java .\src\main\java\project\controller\GameLogic.java .\src\main\java\project\network\Commands.java .\src\main\java\project\network\Server.java
+mvn compile
 ```
 
 4. To run the server, run:
 
 ```
-java .\src\main\java\project\network\Server.java
+mvn exec:java@run-server
 ```
 
 - Once the game ends, the server will shutdown, however, if you wish to shut it down earlier, run:
@@ -99,7 +101,7 @@ CTRL + C
 5. To run the client, run:
    
 ```
-java .\src\main\java\project\network\Client.java
+mvn exec:java@run-client
 ```
 
 6. If you wish to participate with more players, open up more terminals and do the same
