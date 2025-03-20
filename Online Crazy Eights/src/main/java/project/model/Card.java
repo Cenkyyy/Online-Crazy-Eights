@@ -15,7 +15,7 @@ public class Card {
      * Represents the suits of a card
      */
     public enum Suits {
-        DIAMONDS("♦"), HEARTS("♥"), SPADES("♠"), CLUBS("♣");
+        DIAMONDS("Diamonds"), HEARTS("Hearts"), SPADES("Spades"), CLUBS("Clubs");
 
         /** The symbol representing the suit */
         private final String symbol;
@@ -116,6 +116,6 @@ public class Card {
      */
     @Override
     public String toString() {
-        return Rank.getValue() + Suit.getSymbol();
+        return Rank.getValue() + " of " + Suit.getSymbol();
     }
 }

@@ -117,9 +117,7 @@ public class Server {
         }
 
         String[] splitted = command.split(" ");
-        System.out.println(Arrays.toString(splitted));
         Commands.Command cmd = Commands.Command.fromString(splitted[0]);
-        System.out.println(cmd);
 
         if (!player.equals(gameLogic.getCurrentPlayer()) && !cmd.equals(Commands.Command.CHAT) && !cmd.equals(Commands.Command.START)) {
             handler.sendMessage(displayer.displayNotYourTurnMessage());
@@ -215,8 +213,7 @@ public class Server {
             handler.sendMessage(displayer.displayInvalidChatCommandMessage());
             return;
         }
-        String msg = splitted[1];
-        publicBroadcast(chatView.displayMessage(handler.getPlayer(), msg));
+        publicBroadcast(chatView.displayMessage(handler.getPlayer(), splitted));
     }
 
     /**

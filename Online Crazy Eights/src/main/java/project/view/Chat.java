@@ -16,10 +16,15 @@ public class Chat {
     /**
      * Returns a chat message from a player.
      * @param player The player sending the message.
-     * @param message The message content.
+     * @param splittedMessage The message content.
      * @return A formatted string representing the chat message.
      */
-    public String displayMessage(Player player, String message){
-        return "[CHAT] " + player.getName() + ": " + message;
+    public String displayMessage(Player player, String[] splittedMessage){
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i < splittedMessage.length; i++){
+            sb.append(splittedMessage[i]).append(" ");
+        }
+        sb.append("\n");
+        return "[CHAT] " + player.getName() + ": " + sb.toString();
     }
 }

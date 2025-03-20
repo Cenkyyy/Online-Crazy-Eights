@@ -63,7 +63,7 @@ public class GameDisplayer {
         sb.append("           Crazy Eights Board         \n");
         sb.append("======================================\n");
         if (topCard.getRank() == Card.Ranks.EIGHT){
-            sb.append("Top Card: ").append(topCard.getRank().getValue()).append(topCardSuit.getSymbol()).append("\n");
+            sb.append("Top Card: ").append(topCard.getRank().getValue()).append(" of ").append(topCardSuit.getSymbol()).append("\n");
         }else{
             sb.append("Top Card: ").append(topCard).append("\n");
         }
@@ -86,10 +86,10 @@ public class GameDisplayer {
      */
     public String displayPlayersCards(Player player){
         StringBuilder sb = new StringBuilder();
-        sb.append("Your (").append(player.getName()).append(") hand: |");
+        sb.append("Your (").append(player.getName()).append(") hand: | ");
 
         for (Card card : player.getHandCards()) {
-            sb.append(card.getRank().getValue()).append(card.getSuit().getSymbol()).append("|");
+            sb.append(card.getRank().getValue()).append(" of ").append(card.getSuit().getSymbol()).append(" | ");
         }
         sb.append(" (choose between indices 1-").append(player.getHandCards().size()).append(")");
         return sb.toString();
