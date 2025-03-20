@@ -222,7 +222,7 @@ public class Server {
      * @param handler the client handler issuing the start command
      */
     private void handleStartCommand(ClientHandler handler) {
-        if (!gameStarted && gameLogic.getPlayers().size() >= 2) {
+        if (!gameStarted && gameLogic.getPlayers().size() >= gameLogic.playerLowerBound) {
             gameStarted = true;
             gameLogic.startGame();
             publicBroadcast("[GAME] Game is starting!");
@@ -349,6 +349,13 @@ public class Server {
                     // won't happen
                 }
                 clientHandlers.remove(this);
+                gameLogic.removePlayer(player);
+                if (gameLogic.getPlayers().size() < gameLogic.playerLowerBound){
+                    for (Player player : gameLogic.getPlayers()) {
+                        player.clearHand();
+                    }
+                    gameStarted = false;
+                }
                 publicBroadcast("[GAME] " + (player != null ? player.getName() : "A player") + " has left.");
             }
         }
